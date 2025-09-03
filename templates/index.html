@@ -1,0 +1,122 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CNN Receptive Field Designer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-6xl mx-auto p-6 space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-2xl font-semibold">CNN Receptive Field Designer</h1>
+      <div class="flex gap-2">
+        <button id="exportJson" class="px-3 py-2 rounded-xl bg-slate-900 text-white shadow hover:opacity-90">Export JSON</button>
+        <label class="px-3 py-2 rounded-xl bg-white border shadow cursor-pointer hover:bg-slate-100">
+          Import JSON
+          <input id="importJson" type="file" accept="application/json" class="hidden" />
+        </label>
+      </div>
+    </header>
+
+    <!-- Image Settings -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white rounded-2xl p-4 shadow border">
+        <h2 class="font-medium mb-3">Input Image</h2>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-sm">Height</label>
+            <input id="inH" type="number" min="1" value="224" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Width</label>
+            <input id="inW" type="number" min="1" value="224" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Channels</label>
+            <input id="inC" type="number" min="1" value="3" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">Change these and the whole stack recomputes.</p>
+      </div>
+
+      <!-- Add Layer -->
+      <div class="bg-white rounded-2xl p-4 shadow border md:col-span-2">
+        <h2 class="font-medium mb-3">Add Layer</h2>
+        <div class="grid md:grid-cols-8 grid-cols-2 gap-3 items-end">
+          <div class="md:col-span-2">
+            <label class="text-sm">Type</label>
+            <select id="layerType" class="w-full mt-1 rounded-lg border p-2">
+              <option value="conv">Conv2D</option>
+              <option value="maxpool">MaxPool2D</option>
+              <option value="avgpool">AvgPool2D</option>
+              <option value="fc">Fully Connected</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm">Kernel</label>
+            <input id="k" type="number" min="1" value="3" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Stride</label>
+            <input id="s" type="number" min="1" value="1" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Padding</label>
+            <input id="p" type="number" min="0" value="1" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Dilation</label>
+            <input id="d" type="number" min="1" value="1" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div>
+            <label class="text-sm">Out Channels / Units</label>
+            <input id="outC" type="number" min="1" value="64" class="w-full mt-1 rounded-lg border p-2">
+          </div>
+          <div class="md:col-span-2">
+            <button id="addLayer" class="w-full px-3 py-2 rounded-xl bg-blue-600 text-white shadow hover:bg-blue-700">Add Layer</button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">For Pool layers, "Out Channels" is ignored. For FC, H×W collapses to 1×1.</p>
+      </div>
+    </section>
+
+    <!-- Architecture Table -->
+    <section class="bg-white rounded-2xl p-4 shadow border">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-medium">Architecture</h2>
+        <div class="flex gap-2">
+          <button id="clearLayers" class="px-3 py-2 rounded-xl bg-white border shadow hover:bg-slate-100">Clear</button>
+          <button id="exampleNet" class="px-3 py-2 rounded-xl bg-white border shadow hover:bg-slate-100">Load Example</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left bg-slate-100">
+            <tr>
+              <th class="p-2">#</th>
+              <th class="p-2">Layer</th>
+              <th class="p-2">k / s / p / d</th>
+              <th class="p-2">Out Shape (H×W×C)</th>
+              <th class="p-2">RF (H×W)</th>
+              <th class="p-2">Jump (H×W)</th>
+              <th class="p-2">Notes</th>
+              <th class="p-2"></th>
+            </tr>
+          </thead>
+          <tbody id="archTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-xs text-slate-500">
+      Tip: RF grows by <code>(d·(k−1)+1 − 1) × jump</code> per layer along each axis; jump multiplies by stride.
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
